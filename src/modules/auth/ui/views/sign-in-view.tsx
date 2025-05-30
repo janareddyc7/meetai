@@ -10,7 +10,7 @@ import { authClient } from "@/lib/auth-client"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { EyeIcon, EyeOffIcon, OctagonAlertIcon, CheckIcon } from "lucide-react"
+import { EyeIcon, EyeOffIcon, AlertCircleIcon, CheckIcon } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -24,7 +24,7 @@ import { SocialView } from "./social-view"
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(1, "Password is required"),
-  rememberMe: z.boolean().optional(),
+  rememberMe: z.boolean(),
 })
 
 export const SignInView = () => {
@@ -33,14 +33,19 @@ export const SignInView = () => {
   const [isPending, setIsPending] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  type SignInFormValues = {
+    email: string
+    password: string
+    rememberMe: boolean
+  }
+
+  const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
       rememberMe: false,
     },
-    mode: "onChange",
   })
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -77,56 +82,56 @@ export const SignInView = () => {
   const isEmailValid = watchedEmail && z.string().email().safeParse(watchedEmail).success
 
   return (
-    <div className="flex flex-col gap-6">
-      <Card className="overflow-hidden p-0 border shadow-md">
+    <div className="w-full max-w-4xl mx-auto">
+      <Card className="overflow-hidden border-0 shadow-sm bg-white/80 backdrop-blur-sm">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
-              <div className="flex flex-col gap-6">
-                <div className="flex flex-col items-center text-center">
-                  <h1 className="text-2xl font-semibold">Welcome back</h1>
-                  <p className="text-muted-foreground text-balance text-sm">
-                    Enter your credentials to access your account
-                  </p>
+          {/* Form Section */}
+          <div className="p-8 md:p-12">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* Header */}
+                <div className="text-center space-y-2">
+                  <h1 className="text-2xl font-light tracking-tight text-gray-900">Welcome back</h1>
+                  <p className="text-sm text-gray-500">Sign in to your account</p>
                 </div>
-                <div className="grid gap-4">
+
+                {/* Form Fields */}
+                <div className="space-y-4">
                   <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel className="text-sm font-normal text-gray-700">Email</FormLabel>
                         <FormControl>
                           <div className="relative">
                             <Input
                               type="email"
-                              placeholder="my@email.com"
+                              placeholder="Enter your email"
                               autoComplete="email"
-                              aria-label="Email"
-                              className="pr-10 focus-visible:ring-emerald-500/20 focus-visible:ring-offset-0"
+                              className="h-11 border-gray-200 focus:border-gray-400 focus:ring-0 transition-colors"
                               {...field}
                             />
                             {isEmailValid && (
-                              <CheckIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-emerald-500" />
+                              <CheckIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
                             )}
                           </div>
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-xs" />
                       </FormItem>
                     )}
                   />
-                </div>
-                <div className="grid gap-4">
+
                   <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center justify-between">
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel className="text-sm font-normal text-gray-700">Password</FormLabel>
                           <Link
                             href="/forgot-password"
-                            className="text-xs text-emerald-600 hover:text-emerald-700 hover:underline"
+                            className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
                           >
                             Forgot password?
                           </Link>
@@ -137,31 +142,31 @@ export const SignInView = () => {
                               type={showPassword ? "text" : "password"}
                               placeholder="Enter your password"
                               autoComplete="current-password"
-                              aria-label="Password"
-                              className="pr-10 focus-visible:ring-emerald-500/20 focus-visible:ring-offset-0"
+                              className="h-11 pr-10 border-gray-200 focus:border-gray-400 focus:ring-0 transition-colors"
                               {...field}
                             />
                             <Button
                               type="button"
                               variant="ghost"
-                              size="icon"
-                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              size="sm"
+                              className="absolute right-0 top-0 h-11 px-3 hover:bg-transparent"
                               onClick={togglePasswordVisibility}
-                              aria-label={showPassword ? "Hide password" : "Show password"}
                             >
                               {showPassword ? (
-                                <EyeOffIcon className="h-4 w-4 text-muted-foreground" />
+                                <EyeOffIcon className="h-4 w-4 text-gray-400" />
                               ) : (
-                                <EyeIcon className="h-4 w-4 text-muted-foreground" />
+                                <EyeIcon className="h-4 w-4 text-gray-400" />
                               )}
                             </Button>
                           </div>
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-xs" />
                       </FormItem>
                     )}
                   />
                 </div>
+
+                {/* Remember Me */}
                 <FormField
                   control={form.control}
                   name="rememberMe"
@@ -171,80 +176,120 @@ export const SignInView = () => {
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          id="rememberMe"
-                          className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                          className="data-[state=checked]:bg-gray-900 data-[state=checked]:border-gray-900"
                         />
                       </FormControl>
-                      <FormLabel htmlFor="rememberMe" className="text-sm font-normal cursor-pointer">
-                        Remember me
-                      </FormLabel>
+                      <FormLabel className="text-sm font-normal text-gray-600 cursor-pointer">Remember me</FormLabel>
                     </FormItem>
                   )}
                 />
-                {!!error && (
-                  <Alert className="bg-destructive/10 border-none">
-                    <OctagonAlertIcon className="!text-destructive h-4 w-4" />
-                    <AlertTitle>{error}</AlertTitle>
+
+                {/* Error Alert */}
+                {error && (
+                  <Alert className="border-red-200 bg-red-50">
+                    <AlertCircleIcon className="h-4 w-4 text-red-600" />
+                    <AlertTitle className="text-red-800 text-sm">{error}</AlertTitle>
                   </Alert>
                 )}
+
+                {/* Submit Button */}
                 <Button
                   disabled={isPending}
                   type="submit"
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="w-full h-10 bg-black hover:bg-gray-800 text-white text-sm font-normal transition-colors"
                 >
                   {isPending ? (
                     <span className="flex items-center gap-2">
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      <span className="h-3 w-3 animate-spin rounded-full border border-white/30 border-t-white" />
                       Signing in...
                     </span>
                   ) : (
-                    "Sign In"
+                    "Sign in"
                   )}
                 </Button>
-                <div className="text-center text-sm">
+
+                {/* Sign Up Link */}
+                <p className="text-center text-sm text-gray-500">
                   Don&apos;t have an account?{" "}
-                  <Link
-                    href="/sign-up"
-                    className="text-emerald-600 hover:text-emerald-700 underline-offset-4 underline"
-                  >
-                    Sign Up
+                  <Link href="/sign-up" className="text-gray-900 hover:underline font-medium">
+                    Sign up
                   </Link>
+                </p>
+
+                {/* Divider */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-200" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                  </div>
                 </div>
-                <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                  <span className="bg-card text-muted-foreground relative z-10 px-2">Or continue with</span>
-                </div>
+
+                {/* Social Login */}
                 <SocialView setError={setError} setIsPending={setIsPending} isPending={isPending} />
+              </form>
+            </Form>
+          </div>
+
+          {/* Brand Section */}
+          <div className="relative bg-gradient-to-b from-gray-900 to-black hidden md:flex flex-col items-center justify-center p-12">
+            {/* Subtle background pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white rounded-full blur-3xl" />
+              <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-white rounded-full blur-2xl" />
+            </div>
+
+            {/* Content */}
+            <div className="relative text-center space-y-6">
+              {/* Logo */}
+              <div className="mx-auto w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <Image
+                  src="/logo.svg"
+                  alt="Meet.AI"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 filter brightness-0 invert"
+                />
               </div>
-            </form>
-          </Form>
-          <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 relative hidden md:flex flex-col gap-y-4 items-center justify-center">
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5"></div>
-            <div className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
-            <div className="absolute bottom-10 left-10 w-24 h-24 bg-white/5 rounded-full blur-lg"></div>
 
-            <Image src="/logo.svg" alt="Meet.AI logo" width={92} height={92} className="relative z-10 w-20 h-20" />
-            <p className="relative z-10 text-2xl font-semibold text-white">Meet.AI</p>
+              {/* Brand */}
+              <div className="space-y-2">
+                <h2 className="text-2xl font-light text-white">Meet.AI</h2>
+                <p className="text-gray-300 text-sm max-w-xs">Transform your meetings with intelligent insights</p>
+              </div>
 
-            <div className="mt-6 text-emerald-50 max-w-xs text-center relative z-10">
-              <p className="text-sm">
-                Streamline your meetings with AI-powered transcription, summaries, and action items
-              </p>
+              {/* Features */}
+              <div className="space-y-3 text-left max-w-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-1 bg-gray-400 rounded-full" />
+                  <span className="text-gray-400 text-xs">AI-powered transcription</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-1 bg-gray-400 rounded-full" />
+                  <span className="text-gray-400 text-xs">Smart meeting summaries</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-1 bg-gray-400 rounded-full" />
+                  <span className="text-gray-400 text-xs">Actionable insights</span>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="text-muted-foreground text-center text-xs text-balance">
-        By clicking continue, you agree to our{" "}
-        <Link href="/terms" className="text-emerald-600 hover:text-emerald-700 underline-offset-4 underline">
-          Terms of Service
+      {/* Footer */}
+      <p className="text-center text-xs text-gray-400 mt-8">
+        By signing in, you agree to our{" "}
+        <Link href="/terms" className="hover:text-gray-600 transition-colors">
+          Terms
         </Link>{" "}
         and{" "}
-        <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700 underline-offset-4 underline">
+        <Link href="/privacy" className="hover:text-gray-600 transition-colors">
           Privacy Policy
         </Link>
-        .
-      </div>
+      </p>
     </div>
   )
 }
